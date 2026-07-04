@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Necessidade — Negociando com a Vida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --azul: #1a2a4a;
+    --caqui: #c8b89a;
+    --amarelo: #e8c96a;
+    --cinza-claro: #f2f0eb;
+    --cinza-medio: #4a4a4a;
+    --branco: #ffffff;
+    --borda: rgba(26, 42, 74, 0.12);
+    --borda-forte: rgba(26, 42, 74, 0.22);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cinza-claro);
+    color: var(--cinza-medio);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--azul);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--cinza-claro);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+  .logo span { color: var(--amarelo); }
+  .logo-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--caqui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 2px;
+  }
+  .header-tag {
+    font-size: 11px;
+    color: var(--caqui);
+    opacity: 0.8;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: none;
+  }
+  @media (min-width: 480px) { .header-tag { display: block; } }
+
+  /* HERO */
+  .hero {
+    background: var(--azul);
+    padding: 2.5rem 1.5rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    background: var(--cinza-claro);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amarelo);
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    font-weight: 500;
+    color: var(--cinza-claro);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--amarelo);
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--caqui);
+    line-height: 1.65;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* EXAMPLES */
+  .open-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--azul);
+    line-height: 1.35;
+    margin-bottom: 1.25rem;
+  }
+
+  /* INPUT */
+  .input-wrap { margin-bottom: 1rem; position: relative; }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--borda-forte);
+    background: var(--branco);
+    color: var(--cinza-medio);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: var(--azul); }
+  textarea::placeholder { color: #bbb; font-size: 16px; }
+
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 5px;
+  }
+
+  /* BUTTON */
+  .btn-diagnose {
+    width: 100%;
+    padding: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    border-radius: 12px;
+    background: var(--azul);
+    color: var(--cinza-claro);
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+  .btn-diagnose:hover { opacity: 0.88; }
+  .btn-diagnose:active { transform: scale(0.99); }
+  .btn-diagnose:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 3rem 0;
+  }
+  .loading-dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--caqui);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.85); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+  .loading p { font-size: 13px; color: #aaa; }
+
+  /* RESULT */
+  .result { display: none; margin-top: 2rem; }
+
+  /* PERSONA */
+  .persona-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 1rem;
+  }
+  .persona-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--azul);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .persona-sup {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--caqui);
+    margin-bottom: 3px;
+  }
+  .persona-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--azul);
+    line-height: 1.3;
+  }
+
+  /* PARAPHRASE */
+  .paraphrase {
+    border-left: 3px solid var(--caqui);
+    background: #dce4f0;
+    padding: 1rem 1.25rem;
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 1rem;
+  }
+  .paraphrase .sup {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7a8fae;
+    margin-bottom: 8px;
+  }
+  .paraphrase p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--azul);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* NEED BADGE */
+  .need-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .need-icon { font-size: 30px; flex-shrink: 0; margin-top: 2px; }
+  .need-sup {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+    margin-bottom: 3px;
+  }
+  .need-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    line-height: 1.2;
+  }
+  .need-phrase {
+    font-size: 13px;
+    line-height: 1.55;
+    opacity: 0.8;
+  }
+
+  .n1 { background: #faeeda; color: #633806; }
+  .n2 { background: #deedf8; color: #0C447C; }
+  .n3 { background: #f8e8f0; color: #4B1528; }
+  .n4 { background: #eceafa; color: #26215C; }
+  .n5 { background: #e5f0db; color: #173404; }
+
+  /* SOLUTIONS */
+  .solutions-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cinza-medio);
+    opacity: 0.55;
+    margin-bottom: 12px;
+  }
+  .solution-card {
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .solution-card:hover { border-color: var(--borda-forte); }
+  .sol-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--azul);
+    color: var(--amarelo);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .sol-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--azul);
+    margin-bottom: 5px;
+  }
+  .sol-desc {
+    font-size: 13px;
+    color: var(--cinza-medio);
+    line-height: 1.65;
+  }
+
+  /* MOTIVACIONAL */
+  .motivational {
+    display: none;
+    margin-top: 1.5rem;
+    background: var(--azul);
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    text-align: center;
+  }
+  .motivational p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--cinza-claro);
+    line-height: 1.55;
+  }
+
+  /* RESET */
+  .btn-reset {
+    width: 100%;
+    padding: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--borda-forte);
+    background: transparent;
+    color: var(--cinza-medio);
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.15s;
+  }
+  .btn-reset:hover { background: var(--branco); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--borda);
+    margin: 1.5rem 0;
+  }
+
+  /* ERROR */
+  .error-msg {
+    display: none;
+    background: #fff0f0;
+    border: 1px solid #fcc;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #a33;
+    margin-top: 10px;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-size: 12px;
+    color: #aaa;
+    border-top: 1px solid var(--borda);
+  }
+  footer a { color: var(--caqui); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 480px) {
+    main { padding: 1.5rem 1rem 3rem; }
+    .hero { padding: 2rem 1.25rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    Negociando com a Vida
+    <span class="logo-sub">por Renan Cassimiro</span>
+  </div>
+  <span class="header-tag">Diagnóstico de Necessidade</span>
+</header>
+
+<div class="hero">
+  <h1>O que aconteceu que te<br><em>trouxe até aqui?</em></h1>
+</div>
+
+<main>
+
+  <div class="input-wrap">
+    <textarea id="userInput" maxlength="600" placeholder="Conta com suas palavras. Quanto mais você detalhar, mais preciso o diagnóstico..." oninput="updateCount()"></textarea>
+    <div class="char-count"><span id="charCount">0</span>/600</div>
+  </div>
+
+  <button class="btn-diagnose" id="btn" onclick="diagnose()">Diagnosticar</button>
+  <div class="error-msg" id="errorMsg">Algo deu errado. Verifique sua conexão e tente novamente.</div>
+
+  <div class="loading" id="loading">
+    <div class="loading-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <p>Lendo o que está por baixo...</p>
+  </div>
+
+  <div class="result" id="result">
+
+    <div class="persona-card">
+      <div class="persona-avatar" id="personaAvatar">👤</div>
+      <div>
+        <div class="persona-sup">Quem está nessa situação</div>
+        <div class="persona-name" id="personaName">—</div>
+      </div>
+    </div>
+
+    <div class="paraphrase">
+      <div class="sup">O que você trouxe, com outras palavras</div>
+      <p id="paraphraseText"></p>
+    </div>
+
+    <div class="need-badge" id="needBadge">
+      <span class="need-icon" id="needIcon"></span>
+      <div>
+        <div class="need-sup">Necessidade não atendida</div>
+        <div class="need-title" id="needTitle"></div>
+        <div class="need-phrase" id="needPhrase"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="solutions-label">Três caminhos para atender essa necessidade</div>
+    <div id="solutionsList"></div>
+
+    <div class="motivational" id="motivational">
+      <p id="motivationalText"></p>
+    </div>
+
+    <button class="btn-reset" onclick="reset()">← Fazer outro diagnóstico</button>
+  </div>
+
+</main>
+
+<footer>
+  <p>Feito com base em <strong>A. H. Maslow (1943)</strong> e na experiência de campo de Renan Cassimiro</p>
+  <p style="margin-top:6px;">
+    <a href="https://instagram.com/negociandocomavida" target="_blank">@negociandocomavida</a>
+    &nbsp;·&nbsp;
+    <a href="https://primaratio.com.br" target="_blank">primaratio.com.br</a>
+  </p>
+</footer>
+
+<script>
+const NEEDS = {
+  fisiologica:     { title: "Necessidade fisiológica",             icon: "⚡", cls: "n1" },
+  seguranca:       { title: "Necessidade de segurança",            icon: "🛡️", cls: "n2" },
+  pertencimento:   { title: "Necessidade de amor e pertencimento", icon: "🤝", cls: "n3" },
+  estima:          { title: "Necessidade de estima",               icon: "🏆", cls: "n4" },
+  autorrealizacao: { title: "Necessidade de autorrealização",      icon: "🌱", cls: "n5" }
+};
+
+function getAvatar(persona) {
+  const p = persona.toLowerCase();
+  if (p.includes("professor") || p.includes("educador") || p.includes("coordenador")) return "📚";
+  if (p.includes("empresári") || p.includes("empresario") || p.includes("sócio") || p.includes("socio") || p.includes("dono")) return "💼";
+  if (p.includes("mãe") || p.includes("mae")) return "👩‍👧";
+  if (p.includes("pai")) return "👨‍👧";
+  if (p.includes("lider") || p.includes("líder") || p.includes("gestor") || p.includes("gerente") || p.includes("chefe")) return "📊";
+  if (p.includes("funcionário") || p.includes("funcionario") || p.includes("colaborador")) return "🙋";
+  if (p.includes("aluno") || p.includes("estudante")) return "🎓";
+  if (p.includes("casal") || p.includes("parceiro") || p.includes("parceira") || p.includes("marido") || p.includes("esposa")) return "💑";
+  if (p.includes("médico") || p.includes("medico") || p.includes("enfermeiro")) return "🏥";
+  return "👤";
+}
+
+function updateCount() {
+  const val = document.getElementById('userInput').value.length;
+  document.getElementById('charCount').textContent = val;
+}
+
+function fill(el) {
+  document.getElementById('userInput').value = el.textContent;
+  updateCount();
+  document.getElementById('userInput').focus();
+}
+
+async function diagnose() {
+  const input = document.getElementById('userInput').value.trim();
+  if (!input || input.length < 15) {
+    document.getElementById('userInput').focus();
+    return;
+  }
+
+  document.getElementById('btn').disabled = true;
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1200,
+        system: `Você é especialista em motivação humana baseado em Maslow, com linguagem direta e empática, estilo brasileiro cotidiano.
+Analise o relato e retorne APENAS um JSON válido (sem markdown, sem texto fora do JSON):
+{
+  "persona": "Quem é a pessoa em 5-8 palavras. Ex: 'Professor que perdeu autoridade em sala', 'Empresário com sócio que age por conta'",
+  "parafrase": "Parafrasear o relato em 2-3 frases falando com a pessoa no você. Mostre que entendeu a situação sem julgamento.",
+  "necessidade": "fisiologica" | "seguranca" | "pertencimento" | "estima" | "autorrealizacao",
+  "necessidade_frase": "Em uma frase curta e direta diga qual necessidade específica não está sendo atendida. Ex: Sua necessidade de ser respeitado como autoridade não está sendo reconhecida.",
+  "solucoes": [
+    { "titulo": "Nome curto da solução em até 5 palavras", "descricao": "Como aplicar essa solução na prática em 2-3 frases concretas e diretas. Foque no que a pessoa pode FAZER agora." },
+    { "titulo": "...", "descricao": "..." },
+    { "titulo": "...", "descricao": "..." }
+  ],
+  "frase_motivacional": "Uma frase de encerramento calorosa e específica para o perfil identificado. Reconhece a dificuldade da situação e afirma o valor ou a nobreza do papel da pessoa. Ex para professor: 'Ser professor é difícil, mas sua função é nobre — você muda vidas sem perceber.' Ex para mãe: 'Ninguém disse que seria fácil — mas o fato de você estar aqui buscando respostas já diz tudo sobre quem você é.' Máximo de duas frases. Tom humano, sem clichê."
+}
+Regras: linguagem cotidiana brasileira sem academicismo. As soluções devem ser práticas e específicas para o perfil e necessidade identificados. Nenhuma solução pode ser genérica.`,
+        messages: [{ role: "user", content: `Relato: "${input}"` }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.map(i => i.text || "").join("");
+    const clean = text.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(clean);
+    show(parsed);
+
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btn').disabled = false;
+    document.getElementById('errorMsg').style.display = 'block';
+  }
+}
+
+function show(d) {
+  document.getElementById('loading').style.display = 'none';
+
+  document.getElementById('personaAvatar').textContent = getAvatar(d.persona);
+  document.getElementById('personaName').textContent = d.persona;
+  document.getElementById('paraphraseText').textContent = d.parafrase;
+
+  const need = NEEDS[d.necessidade] || NEEDS.estima;
+  const badge = document.getElementById('needBadge');
+  badge.className = 'need-badge ' + need.cls;
+  document.getElementById('needIcon').textContent = need.icon;
+  document.getElementById('needTitle').textContent = need.title;
+  document.getElementById('needPhrase').textContent = d.necessidade_frase;
+
+  const list = document.getElementById('solutionsList');
+  list.innerHTML = '';
+  (d.solucoes || []).forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'solution-card';
+    card.innerHTML = `
+      <div class="sol-num">${i + 1}</div>
+      <div>
+        <div class="sol-title">${s.titulo}</div>
+        <div class="sol-desc">${s.descricao}</div>
+      </div>`;
+    list.appendChild(card);
+  });
+
+  if (d.frase_motivacional) {
+    document.getElementById('motivationalText').textContent = d.frase_motivacional;
+    document.getElementById('motivational').style.display = 'block';
+  }
+
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('btn').disabled = false;
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function reset() {
+  document.getElementById('userInput').value = '';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('motivational').style.display = 'none';
+  document.getElementById('charCount').textContent = '0';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
